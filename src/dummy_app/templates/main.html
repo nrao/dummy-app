@@ -1,0 +1,13 @@
+<!doctype html>
+<title>Dummy App</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<section class="content">
+  <header>
+    <h1>Release Engineering Dummy App</h1>
+  </header>
+  <p>Hello World!</p>
+  <ul>
+    <li><strong>Version:</strong> {{ version }}</li>
+    <li><strong>SAMPLE_VAR:</strong> {{ sample_var }}</li>
+  </ul>
+</section>
