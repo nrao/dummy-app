@@ -13,11 +13,12 @@ The app runs a simple webserver and has two endpoints:
     - [x] code updates
     - [x] unit testing
     - [x] containerized artifact
+    - [ ] GitHub action(s) to build & push container
+- Environment definitions
+    - [x] Environment variables
 - GitOps Delivery
     - [ ] helm chart
     - [ ] smoke tests
-- Environment definitions
-    - [x] Environment variables
 
 # Development
 Install development dependencies
