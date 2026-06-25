@@ -1,0 +1,20 @@
+## sampleVar is the value that the app will pull from its environment to display on the webpage
+sampleVar: default Helm value
+
+replicaCount: 1
+
+image:
+  pullPolicy: Always
+  tag: "edge"
+
+## username and password will need to be replaced with a valid GitHub user and token with package:read permissions
+imageCredentials:
+  registry: ghcr.io
+  username: someone
+  password: token
+
+podLabels: {}
+
+service:
+  type: ClusterIP
+  port: 80
