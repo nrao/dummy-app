@@ -1,6 +1,7 @@
 FROM python:3.12-slim
 
 LABEL org.opencontainers.image.title="NRAO Release Engineering Dummy App"
+LABEL org.opencontainers.image.description="A minimal app for testing and demoing GitOps processes"
 LABEL org.opencontainers.image.vendor="Associated Universities, Inc. Washington DC, USA"
 LABEL org.opencontainers.image.url="https://public.nrao.edu/"
 LABEL org.opencontainers.image.licenses="BSD-3-Clause"

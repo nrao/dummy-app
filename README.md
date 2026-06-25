@@ -17,7 +17,7 @@ The app runs a simple webserver and has two endpoints:
 - Environment definitions
     - [x] Environment variables
 - GitOps Delivery
-    - [ ] helm chart
+    - [x] helm chart
     - [ ] smoke tests
 
 # Development
