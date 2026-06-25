@@ -4,7 +4,7 @@ on:
     branches:
     - main
     tags:
-    - 'v*'
+    - '**'
   pull_request:
     branches:
       - main
@@ -53,6 +53,10 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ghcr.io/nrao/releng/dummy_app
+          tags: |
+            type=ref,event=tag
+            type=semver,pattern={{version}}
+            type=edge
       - 
         name: Login to GitHub container registry
         if: github.event_name != 'pull_request'
@@ -72,5 +76,6 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           push: ${{ github.event_name != 'pull_request' }}
+          platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
