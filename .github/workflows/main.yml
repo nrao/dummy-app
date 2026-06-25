@@ -32,14 +32,14 @@ jobs:
     - 
       name: Upload test results
       if: ${{ always() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: pytest-results
         path: junit/test-results.xml
     - 
       name: Upload coverage results
       if: ${{ always() }}
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: coverage-results
         path: coverage.xml

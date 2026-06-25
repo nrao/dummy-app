@@ -13,7 +13,7 @@ The app runs a simple webserver and has two endpoints:
     - [x] code updates
     - [x] unit testing
     - [x] containerized artifact
-    - [ ] GitHub action(s) to build & push container
+    - [x] GitHub action(s) to build & push container
 - Environment definitions
     - [x] Environment variables
 - GitOps Delivery
