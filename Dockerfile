@@ -1,5 +1,11 @@
 FROM python:3.12-slim
 
+LABEL org.opencontainers.image.title="NRAO Release Engineering Dummy App"
+LABEL org.opencontainers.image.vendor="Associated Universities, Inc. Washington DC, USA"
+LABEL org.opencontainers.image.url="https://public.nrao.edu/"
+LABEL org.opencontainers.image.licenses="BSD-3-Clause"
+LABEL org.opencontainers.image.source = "https://github.com/nrao/dummy-app" 
+
 WORKDIR /app
 
 COPY pyproject.toml README.md src/ container/ ./
