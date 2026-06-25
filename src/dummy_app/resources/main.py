@@ -11,4 +11,9 @@ main = Blueprint("main", __name__)
 def root():
     version = importlib.metadata.version("dummy_app")
     sample_var = os.getenv("SAMPLE_VAR", "UNSET")
-    return flask.render_template("main.html", version=version, sample_var=sample_var)
+    color_var = os.getenv("COLOR", "none").lower()
+    if color_var in ("none", "yellow", "orange", "red", "magenta", "violet", "blue", "cyan", "green"):
+        color = color_var
+    else:
+        color = "invalid"
+    return flask.render_template("main.html", version=version, sample_var=sample_var, color=color)
