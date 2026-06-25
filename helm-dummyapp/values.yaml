@@ -1,6 +1,9 @@
 ## sampleVar is the value that the app will pull from its environment to display on the webpage
 sampleVar: default Helm value
 
+## color is the color to use for the webpage background. Valid values are the Solarized colors: https://ethanschoonover.com/solarized/
+color: blue
+
 replicaCount: 1
 
 image:

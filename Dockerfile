@@ -19,6 +19,7 @@ RUN pip install --upgrade pip && \
 ENV PYTHONPATH="${PYTHONPATH}:/app"
 
 ENV SAMPLE_VAR=docker_default
+ENV COLOR=blue
 
 EXPOSE 5000
 

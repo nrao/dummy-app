@@ -26,6 +26,8 @@ spec:
           env:
             - name: SAMPLE_VAR
               value: {{ .Values.sampleVar }}
+            - name: COLOR
+              value: {{ .Values.color }}
           ports:
             - name: http
               containerPort: 5000

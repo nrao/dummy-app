@@ -1,3 +1,29 @@
 body {
+    background-color: #fdf6e3;
+    color: #002b36;
+    font-size: 1.4rem;
+}
+body.yellow {
+    background-color: #b58900;
+}
+body.orange {
+    background-color: #cb4b16;
+}
+body.red {
+    background-color: #dc322f;
+}
+body.magenta {
+    background-color: #d33682;
+}
+body.violet {
+    background-color: #6c71c4;
+}
+body.blue {
     background-color: #268bd2;
+}
+body.cyan {
+    background-color: #2aa198;
+}
+body.green {
+    background-color: #859900;
 }
