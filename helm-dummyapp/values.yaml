@@ -7,7 +7,7 @@ color: blue
 replicaCount: 1
 
 image:
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
   tag: "edge"
 
 ## username and password will need to be replaced with a valid GitHub user and token with package:read permissions
