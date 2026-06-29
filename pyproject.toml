@@ -1,7 +1,7 @@
 [project]
 name ="dummy_app"
 description = "A minimal app for testing and demoing GitOps processes."
-version = "0.1.0"
+version = "0.1.2"
 license = "BSD-3-Clause"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"
