@@ -8,7 +8,7 @@ replicaCount: 1
 
 image:
   pullPolicy: IfNotPresent
-  tag: "edge"
+  tag: "1.1.3"
 
 ## username and password will need to be replaced with a valid GitHub user and token with package:read permissions
 imageCredentials:
