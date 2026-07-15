@@ -18,7 +18,12 @@ spec:
         {{- end }}
     spec:
       imagePullSecrets:
+      {{- with .Values.imagePullSecrets }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.imageCredentials.password }}
         - name: '{{ include "dummyapp.fullname" . }}-registrykey'
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "ghcr.io/nrao/releng/dummy_app:{{ .Values.image.tag | default .Chart.AppVersion }}"
