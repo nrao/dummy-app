@@ -10,11 +10,15 @@ image:
   pullPolicy: IfNotPresent
   tag: "1.1.5"
 
-## username and password will need to be replaced with a valid GitHub user and token with package:read permissions
-imageCredentials:
-  registry: ghcr.io
-  username: someone
-  password: token
+## For simple usage, you can set single image pull credentials directly:
+imageCredentials: {}
+  ## for GHCR, username and password will need to be a valid GitHub user and token with package:read permissions, e.g:
+  # registry: ghcr.io
+  # username: someone
+  # password: token
+
+## alternatively, set imagePullSecrets (the dockerconfigjson Secret must then be created manually)
+imagePullSecrets: []
 
 podLabels: {}
 
@@ -29,8 +33,8 @@ ingress:
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
   hosts:
-    - host: chart-example.local
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
+    # - host: chart-example.local
+    #   paths:
+    #     - path: /
+    #       pathType: ImplementationSpecific
   tls: []
