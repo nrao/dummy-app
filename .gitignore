@@ -7,3 +7,6 @@ htmlcov/
 junit/
 .coverage
 coverage.xml
+
+## ACT files used in local testing
+event.json
