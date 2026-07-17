@@ -72,6 +72,8 @@ jobs:
     needs: [prep_env]
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Docker metadata
         id: meta
