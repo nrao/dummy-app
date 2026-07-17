@@ -27,6 +27,6 @@ jobs:
       - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
           owner: nrao
-          package: releng/dummy-app
+          package: releng/dummy_app
           dry-run: true
           older-than: 7 days
