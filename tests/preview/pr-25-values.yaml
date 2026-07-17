@@ -1,0 +1,8 @@
+contextPath: '/test'
+
+ingress:
+  hosts:
+    - host: 'pr-25.dummy-preview.localhost'
+      paths:
+        - path: /test
+          pathType: Prefix
