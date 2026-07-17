@@ -25,7 +25,7 @@ else
     latest_patch="$(echo $latest_version | sed -r 's/([[:digit:]]+)\.([[:digit:]]+)\.([[:digit:]]+)/\3/')"
     next_patch=$((latest_patch + 1))
 
-    dev_count="$(git rev-list vx${latest_version}..HEAD --count 2>/dev/null)"
+    dev_count="$(git rev-list v${latest_version}..HEAD --count 2>/dev/null)"
 
     next_version="${latest_major}.${latest_minor}.${next_patch}"
     ## dev version - append branch, date and commit hash
