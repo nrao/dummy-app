@@ -5,16 +5,16 @@ on:
     - cron: "12 0 * * *"   # Daily a little after midnight (12:12 am)
 
 jobs:
-#   clean:
+#   clean_alt:
 #     runs-on: ubuntu-latest
 #     name: Delete untagged images older than 7d
 #     steps:
 #       - uses: snok/container-retention-policy@v3.1.0
 #         with:
-#           account: kdion-nrao
+#           account: nrao
 #           token: ${{ secrets.GHCR_PAT }}
 #           tag-selection: untagged
-#           image-names: "*"
+#           image-names: "releng/dummy_app"
 #           cut-off: 7d
 #           dry-run: true
 
@@ -28,5 +28,4 @@ jobs:
         with:
           owner: nrao
           package: releng/dummy_app
-          dry-run: true
           older-than: 7 days
