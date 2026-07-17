@@ -13,37 +13,36 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - 
-      uses: actions/checkout@v6
-    - 
-      name: Set up Python
+    - uses: actions/checkout@v6
+    
+    - name: Set up Python
       uses: actions/setup-python@v6
       with:
         python-version: '3.12'
-    -
-      name: Fix PATH for act (local actions testing)
+    
+    - name: Fix PATH for act (local actions testing)
       if: ${{ env.ACT }}
       run: |
         ACT_TOOL_PATHS=$(cat /etc/environment | grep "PATH=" | sed -e 's/PATH=//' | tr ":" "\n" | grep "${ACT_TOOLSDIRECTORY}" | tr '\n' ':' | tr -d ':')
         echo ":${ACT_TOOL_PATHS}" >> "$GITHUB_PATH"
-    -
-      name: Install dependencies
+
+    - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e '.[all]'
-    - 
-      name: Unit test with coverage
+
+    - name: Unit test with coverage
       run: |
         pytest --junitxml=junit/test-results.xml --cov=dummy_app --cov-report=xml
-    - 
-      name: Upload test results
+
+    - name: Upload test results
       if: ${{ !env.ACT && always() }}
       uses: actions/upload-artifact@v7
       with:
         name: pytest-results
         path: junit/test-results.xml
-    - 
-      name: Upload coverage results
+
+    - name: Upload coverage results
       if: ${{ !env.ACT && always() }}
       uses: actions/upload-artifact@v7
       with:
@@ -53,8 +52,7 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Docker metadata
+      - name: Docker metadata
         if: ${{ !env.ACT }}
         id: meta
         uses: docker/metadata-action@v6
@@ -64,25 +62,27 @@ jobs:
             type=ref,event=tag
             type=semver,pattern={{version}}
             type=edge
-      - 
-        name: Login to GitHub container registry
+
+      - name: Login to GitHub container registry
         if: ${{github.event_name != 'pull_request' && !env.ACT }}
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      -
-        name: Set up QEMU
+      
+      - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
-      -
-        name: Set up Docker Buildx
+      
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-      -
-        name: Build and push
+      
+      - name: Build and push
         uses: docker/build-push-action@v7
         with:
           push: ${{ github.event_name != 'pull_request' && !env.ACT }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

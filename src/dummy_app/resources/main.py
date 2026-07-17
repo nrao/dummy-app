@@ -1,7 +1,7 @@
 import importlib
 import os
 
-from flask import Blueprint
+from flask import Blueprint, request
 import flask
 
 
@@ -16,4 +16,6 @@ def root():
         color = color_var
     else:
         color = "invalid"
-    return flask.render_template("main.html", version=version, sample_var=sample_var, color=color)
+    
+    base_url = request.base_url
+    return flask.render_template("main.html", version=version, base_url=base_url, sample_var=sample_var, color=color)
