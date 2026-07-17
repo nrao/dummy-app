@@ -6,11 +6,6 @@ fallback_version='0.0.0'
 project_file=$1
 version="$fallback_version"
 
-if [ -z "$project_file" ]
-then
-    project_file="pyproject.toml"
-fi
-
 ## get the latest version tag, trimming the 'v'
 latest_tag="$(git describe --abbrev=0 --tags --match 'v*.*.*' 2>/dev/null | sed 's/^v//')"
 if [ -z "$latest_tag" ]
@@ -24,11 +19,26 @@ if [ "$this_commit_tag" = "$latest_tag" ]
 then
     version="$latest_tag"
 else
+    ## auto-increment patch number from latest_tag
+    latest_major="$(echo $latest_tag | sed -r 's/([[:digit:]]+)\.([[:digit:]]+)\.([[:digit:]]+)/\1/')"
+    latest_minor="$(echo $latest_tag | sed -r 's/([[:digit:]]+)\.([[:digit:]]+)\.([[:digit:]]+)/\2/')"
+    latest_patch="$(echo $latest_tag | sed -r 's/([[:digit:]]+)\.([[:digit:]]+)\.([[:digit:]]+)/\3/')"
+    next_patch=$((latest_patch + 1))
+
+    next_version="${latest_major}.${latest_minor}.${next_patch}"
     ## dev version - append branch, date and commit hash
-    branch="$(git rev-parse --abbrev-ref HEAD)"
+    branch="$(git rev-parse --abbrev-ref HEAD | sed 's/[^0-9A-Za-z-]/-/g' | sed 's/--*/-/g')"
     timestamp="$(date '+%Y%m%d%H%M%S')"
     hash="$(git rev-parse --short HEAD)"
-    version="${latest_tag}-${branch}-${timestamp}-${hash}"
+    version="${next_version}-dev-${branch}-${timestamp}+${hash}"
 fi
 
 echo "$version"
+
+## write the new version to the project file, if specified
+if [ ! -z "$project_file" ]
+then
+    echo "writing new version"
+    sed "s/^version =.*$/version = \"${version}\"/" $project_file > proj.tmp
+    mv proj.tmp $project_file
+fi

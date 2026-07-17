@@ -96,6 +96,11 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
       
+      - name: Generate new version for build
+        if: needs.prep_env.outputs.should_publish == 'true'
+        run: |
+          ./generateVersion.sh pyproject.toml
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
