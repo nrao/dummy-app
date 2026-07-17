@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash -ex
 
 ## Generate a version from git metadata and print it
 
@@ -26,7 +26,7 @@ else
     latest_patch="$(echo $latest_version | sed -r 's/([[:digit:]]+)\.([[:digit:]]+)\.([[:digit:]]+)/\3/')"
     next_patch=$((latest_patch + 1))
 
-    dev_count="$(git rev-list ${latest_tag}.. --count)"
+    dev_count="$(git rev-list ${latest_tag}..HEAD --count)"
 
     next_version="${latest_major}.${latest_minor}.${next_patch}"
     ## dev version - append branch, date and commit hash
