@@ -16,26 +16,32 @@ The following environment variables can be set in the built container image, or 
 | --- | --- | --- | --- |
 | `SAMPLE_VAR` | `"UNSET"` | Any string | A text value that is displayed on the webpage |
 | `COLOR` | `none` | `none`, `yellow`, `orange`, `red`, `magenta`, `violet`, `blue`, `cyan`, `green` | Sets the background color of the webpage. Valid values are the (non-`base`) [Solarized](https://ethanschoonover.com/solarized/) color names (e.g. `blue`, `red`, `cyan`, etc.) |
+| `CONTEXT_PATH` | `/` | A URL subpath | The subpath the app is deployed at |
 
-### Progress
--  CI/CD
-    - [x] code updates
-    - [x] unit testing
-    - [x] containerized artifact
-    - [x] GitHub action(s) to build & push container
-- Environment definitions
-    - [x] Environment variables
-- GitOps Delivery
-    - [x] helm chart
-    - [ ] smoke tests
+### TODOS
+- [ ] smoke/integration tests
 
 # Development
-Install development dependencies
+
+## Install development dependencies
 ```bash
 pip install -e '.[all]'
 ```
 
-Run app in dev mode
+## Run app in dev mode
 ```bash
-gunicorn --reload 'dummy_app:init_app()'
+./runDev.sh
+```
+
+## Build container
+```bash
+docker build -t nrao/releng/dummy_app:local .
+```
+
+## Run the built container
+```bash
+docker run --rm \
+    -p 8000:5000 \
+    --name dummyapp \
+    nrao/releng/dummy_app:local
 ```
