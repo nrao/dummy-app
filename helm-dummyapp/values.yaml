@@ -4,9 +4,13 @@ sampleVar: default Helm value
 ## color is the color to use for the webpage background. Valid values are the Solarized colors: https://ethanschoonover.com/solarized/
 color: yellow
 
+## contextPath is the deployment path for the app
+contextPath: "/"
+
 replicaCount: 1
 
 image:
+  repository: "ghcr.io/nrao/releng/dummy_app"
   pullPolicy: IfNotPresent
   tag: "1.1.5"
 
@@ -20,6 +24,7 @@ imageCredentials: {}
 ## alternatively, set imagePullSecrets (the dockerconfigjson Secret must then be created manually)
 imagePullSecrets: []
 
+podAnnotations: {}
 podLabels: {}
 
 service:
@@ -38,3 +43,5 @@ ingress:
     #     - path: /
     #       pathType: ImplementationSpecific
   tls: []
+
+resources: {}
