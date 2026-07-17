@@ -45,3 +45,8 @@ docker run --rm \
     --name dummyapp \
     nrao/releng/dummy_app:local
 ```
+
+## Troubleshooting
+
+### Some docker actions fail when run with `act`
+If the error mentions something about 'Bad Credentials' or a bad token, you probably need to setup a `GITHUB_TOKEN` and [pass it to `act`](https://nektosact.com/usage/index.html#github_token)

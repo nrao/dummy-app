@@ -9,4 +9,5 @@ junit/
 coverage.xml
 
 ## ACT files used in local testing
+.actrc
 event.json
