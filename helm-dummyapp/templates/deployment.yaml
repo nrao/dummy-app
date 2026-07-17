@@ -45,11 +45,11 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /healthz
+              path: '{{ .Values.contextPath }}/healthz'
               port: http
           readinessProbe:
             httpGet:
-              path: /healthz
+              path: '{{ .Values.contextPath }}/healthz'
               port: http
           {{- with .Values.resources }}
           resources:
