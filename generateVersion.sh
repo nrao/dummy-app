@@ -7,9 +7,8 @@ project_file=$1
 version="$fallback_version"
 
 ## get the latest version tag, trimming the 'v'
-latest_tag="$(git describe --abbrev=0 --tags --match 'v*.*.*' 2>/dev/null)"
-latest_version="$(echo $latest_tag | sed 's/^v//')"
-if [ -z "$latest_tag" ]
+latest_version="$(git describe --abbrev=0 --tags --match 'v*.*.*' 2>/dev/null | sed 's/^v//')"
+if [ -z "$latest_version" ]
 then
     latest_version="$fallback_version"
 fi
@@ -26,7 +25,7 @@ else
     latest_patch="$(echo $latest_version | sed -r 's/([[:digit:]]+)\.([[:digit:]]+)\.([[:digit:]]+)/\3/')"
     next_patch=$((latest_patch + 1))
 
-    dev_count="$(git rev-list ${latest_tag}..HEAD --count)"
+    dev_count="$(git rev-list v${latest_version}..HEAD --count)"
 
     next_version="${latest_major}.${latest_minor}.${next_patch}"
     ## dev version - append branch, date and commit hash
