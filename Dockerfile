@@ -7,13 +7,17 @@ LABEL org.opencontainers.image.url="https://public.nrao.edu/"
 LABEL org.opencontainers.image.licenses="BSD-3-Clause"
 LABEL org.opencontainers.image.source="https://github.com/nrao/dummy-app" 
 
+ARG VERSION
+ENV VERSION=$VERSION
+ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_DUMMY_APP=$VERSION
+
 WORKDIR /app
 
 COPY pyproject.toml README.md src/ container/ ./
 RUN chmod +x runApp.sh
 
-RUN pip install --upgrade pip && \
-    pip install -e '.[all]'
+RUN pip install --root-user-action=ignore --no-cache-dir --upgrade pip && \
+    pip install --root-user-action=ignore --no-cache-dir -e '.[all]'
 
 # https://github.com/docker/buildx/issues/2751
 ENV PYTHONPATH="${PYTHONPATH}:/app"
