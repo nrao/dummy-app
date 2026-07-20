@@ -1,7 +1,16 @@
+[build-system]
+requires = ["setuptools>=80", "setuptools-scm[simple]>=8"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+tag.prefix = "v"
+tag.strict = true
+scm.git.pre_parse = "fetch_on_shallow"
+
 [project]
 name ="dummy_app"
 description = "A minimal app for testing and demoing GitOps processes."
-version = "1.2.0-dev"
+dynamic = ["version"]
 license = "BSD-3-Clause"
 readme = "README.md"
 requires-python = ">=3.11,<3.14"

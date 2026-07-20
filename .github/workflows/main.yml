@@ -18,11 +18,31 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       should_publish: ${{ env.SHOULD_PUBLISH && !env.ACT }}
+      app_version: ${{ steps.setuptools.outputs.version }}
     steps:
       - name: Print env variable
         run: |
           echo "SHOULD_PUBLISH: ${{ env.SHOULD_PUBLISH }}"
 
+      - uses: actions/checkout@v6
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Fix PATH for act (local actions testing)
+        if: ${{ env.ACT }}
+        run: |
+          ACT_TOOL_PATHS=$(cat /etc/environment | grep "PATH=" | sed -e 's/PATH=//' | tr ":" "\n" | grep "${ACT_TOOLSDIRECTORY}" | tr '\n' ':' | tr -d ':')
+          echo ":${ACT_TOOL_PATHS}" >> "$GITHUB_PATH"
+
+      - run: pip install --root-user-action=ignore setuptools_scm
+
+      - name: Get app version
+        id: setuptools
+        run: echo "version=$(python -m setuptools_scm)" >> "$GITHUB_OUTPUT"
+    
       # - name: Dump GitHub context (useful for debugging)
       #   env:
       #     GITHUB_CONTEXT: ${{ toJson(github) }}
@@ -97,11 +117,13 @@ jobs:
       
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
-  
+
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
           context: .
+          build-args: |
+            VERSION=${{ needs.prep_env.outputs.app_version }}
           push: ${{ needs.prep_env.outputs.should_publish == 'true' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
