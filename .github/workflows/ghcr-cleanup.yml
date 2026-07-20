@@ -22,10 +22,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       packages: write
-    name: Delete untagged images older than 7d
+    name: Delete untagged images
     steps:
       - uses: dataaxiom/ghcr-cleanup-action@v1
         with:
           owner: nrao
           package: releng/dummy_app
-          older-than: 7 days
