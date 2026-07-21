@@ -14,6 +14,7 @@ ENV SETUPTOOLS_SCM_PRETEND_VERSION_FOR_DUMMY_APP=$VERSION
 WORKDIR /app
 
 COPY pyproject.toml README.md src/ container/ ./
+COPY tests/deployment/test_deployment_integration.py ./
 RUN chmod +x runApp.sh
 
 RUN pip install --root-user-action=ignore --no-cache-dir --upgrade pip && \

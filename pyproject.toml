@@ -25,4 +25,5 @@ dependencies = [
 all = [
     "pytest",
     "pytest-cov",
+    "allure-pytest",
 ]
