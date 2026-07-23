@@ -63,16 +63,44 @@ jobs:
       run: |
         ACT_TOOL_PATHS=$(cat /etc/environment | grep "PATH=" | sed -e 's/PATH=//' | tr ":" "\n" | grep "${ACT_TOOLSDIRECTORY}" | tr '\n' ':' | tr -d ':')
         echo ":${ACT_TOOL_PATHS}" >> "$GITHUB_PATH"
-
+        
+    - name: Install Allure CLI
+      run: |
+        wget -qO- https://nodejs.org/dist/v24.12.0/node-v24.12.0-linux-x64.tar.xz | tar -xJ
+        export PATH=$HOME/node-v24.12.0-linux-x64/bin:$PATH
+        npm install -g allure@3.1.0
+        which allure
+        allure --version
+        
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -e '.[all]'
+        pip install allure-pytest
 
     - name: Unit test with coverage
       run: |
-        pytest --junitxml=junit/test-results.xml --cov=dummy_app --cov-report=xml
-
+        pytest --junitxml=junit/test-results.xml --cov=dummy_app --cov-report=xml --ignore=tests/deployment --alluredir=allure-results
+        allure generate allure-results
+        
+    - name: Run Allure Action
+      uses: allure-framework/allure-action@v0 # update with latest version tag
+      with:
+        # Path to the generated report directory
+        # Default: "./allure-report"
+        report-directory: "./allure-report"
+        # State path where the report is hosted on
+        # Useful when you publish your report to GitHub pages or any other hosting for static web-sites
+        # Default: ""
+        # remote-href: "https://allure-framework.github.io/allure-action/"
+        # GitHub token used to create checks and post comments in pull requests
+        # Defaults to ${{ github.token }}
+        github-token: ${{ github.token }}
+        # Optional extra section comments to publish alongside the summary table
+        # Supported values: new, flaky, retry, all
+        # Default: hidden
+        sections: |
+          all
     - name: Upload test results
       if: ${{ !env.ACT && always() }}
       uses: actions/upload-artifact@v7
