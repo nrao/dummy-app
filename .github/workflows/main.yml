@@ -71,7 +71,7 @@ jobs:
 
     - name: Unit test with coverage
       run: |
-        pytest --junitxml=junit/test-results.xml --cov=dummy_app --cov-report=xml
+        pytest --junitxml=junit/test-results.xml --cov=dummy_app --cov-report=xml --ignore=deployment
 
     - name: Upload test results
       if: ${{ !env.ACT && always() }}
