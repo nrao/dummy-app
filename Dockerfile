@@ -20,6 +20,7 @@ RUN pip install --root-user-action=ignore --no-cache-dir --upgrade pip && \
     pip install --root-user-action=ignore --no-cache-dir -e '.[all]'
 
 # https://github.com/docker/buildx/issues/2751
+# check=skip=UndefinedVar
 ENV PYTHONPATH="${PYTHONPATH}:/app"
 
 ENV SAMPLE_VAR=docker_default
