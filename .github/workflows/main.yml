@@ -43,7 +43,10 @@ jobs:
 
       - name: Get app version
         id: setuptools
-        run: echo "version=$(python -m setuptools_scm)" >> "$GITHUB_OUTPUT"
+        run: |
+          scm_version="$(python -m setuptools_scm)"
+          timestamp="$(date +'%H%M%S')"
+          echo "version=${scm_version}${timestamp}" >> "$GITHUB_OUTPUT"
 
       - name: Get image name
         id: imagename
@@ -53,7 +56,7 @@ jobs:
       - name: Get ArgoCD app name
         id: argocd
         run: |
-          app_name="dummy-app-dev"
+          app_name="dummy-app-${{ !env.ACT && 'dev' || 'local' }}"
           event_name="${{ github.event_name }}"
           echo "app_name=${app_name}" >> "$GITHUB_OUTPUT"
     
@@ -173,12 +176,12 @@ jobs:
       - name: Trigger sync
         run: |
           # Trigger a sync for the application
-          argocd app sync dummy-app-dev --grpc-web
+          argocd app sync ${{ needs.prep_env.outputs.argocd_app_name }} --replace --force --grpc-web
 
       - name: Wait for sync to complete
         run: |
           # Wait up to 5 minutes for the sync to finish
-          argocd app wait dummy-app-dev \
+          argocd app wait ${{ needs.prep_env.outputs.argocd_app_name }} \
             --sync \
             --health \
             --timeout 300 \
@@ -188,7 +191,7 @@ jobs:
         id: deployment_check
         run: |
           # Check that the application is healthy
-          STATUS="$(argocd app get dummy-app-dev -o json --grpc-web | jq -r '.status.health.status')"
+          STATUS="$(argocd app get ${{ needs.prep_env.outputs.argocd_app_name }} -o json --grpc-web | jq -r '.status.health.status')"
           echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
           if [ "$STATUS" != "Healthy" ]; then
             echo "Application is not healthy: $STATUS"
@@ -196,12 +199,13 @@ jobs:
           fi
           echo "Application is healthy!"
           ## Get External URL
-          URL="$(argocd app get dummy-app-dev -o json --grpc-web | jq -r '.status.summary.externalURLs[0]')"
+          URL="$(argocd app get ${{ needs.prep_env.outputs.argocd_app_name }} -o json --grpc-web | jq -r '.status.summary.externalURLs[0]')"
           echo "url=${URL}" >> "$GITHUB_OUTPUT"
           echo "Application URL: $URL"
       
       - name: Post comment with status and URL
         uses: actions/github-script@v9
+        if: ${{ !env.ACT && always() }}
         with:
           script: |
             github.rest.issues.createComment({
