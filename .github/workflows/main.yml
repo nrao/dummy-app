@@ -219,7 +219,7 @@ jobs:
       
       - name: Post comment with status and URL
         uses: actions/github-script@v9
-        if: ${{ !env.ACT && github.event.event_name == 'pull_request' }}
+        if: ${{ !env.ACT && github.event_name == 'pull_request' }}
         with:
           script: |
             github.rest.issues.createComment({
