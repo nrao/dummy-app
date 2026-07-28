@@ -22,10 +22,6 @@ jobs:
       app_version: ${{ steps.setuptools.outputs.version }}
       argocd_app_name: ${{ steps.argocd.outputs.app_name }}
     steps:
-      - name: Print env variable
-        run: |
-          echo "SHOULD_PUBLISH: ${{ env.SHOULD_PUBLISH }}"
-
       - uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.head.sha || '' }}
@@ -62,8 +58,15 @@ jobs:
       - name: Get ArgoCD app name
         id: argocd
         run: |
-          app_name="dummy-app-${{ !env.ACT && 'dev' || 'local' }}"
+          app_name="dummy-app-UNKNOWN-${{ github.event_name  }}"
           event_name="${{ github.event_name }}"
+          if [[ "$event_name" == "pull_request" ]]
+          then
+            app_name="dummyapp-pr-${{ github.event.pull_request.number }}"
+          elif [[ "$event_name" == "push" ]]
+          then
+            app_name="dummy-app-${{ !env.ACT && 'dev' || 'local' }}"
+          fi
           echo "app_name=${app_name}" >> "$GITHUB_OUTPUT"
     
       - name: Dump GitHub context (useful for debugging)
@@ -194,7 +197,7 @@ jobs:
             --timeout 300 \
             --grpc-web
 
-      - name: Verify deployment health
+      - name: Verify deployment health and build status message
         id: deployment_check
         run: |
           # Check that the application is healthy
@@ -204,20 +207,25 @@ jobs:
             echo "Application is not healthy: $STATUS"
             exit 1
           fi
-          echo "Application is healthy!"
           ## Get External URL
           URL="$(argocd app get ${{ needs.prep_env.outputs.argocd_app_name }} -o json --grpc-web | jq -r '.status.summary.externalURLs[0]')"
-          echo "url=${URL}" >> "$GITHUB_OUTPUT"
           echo "Application URL: $URL"
+
+          read -r -d '' msg <<EOF
+          ### ✅ Application successfully deployed in ArgoCD
+          You can view the preview of this PR here: $URL
+          EOF
+          echo "status_message=${msg}" >> "$GITHUB_OUTPUT"
+
       
       - name: Post comment with status and URL
         uses: actions/github-script@v9
-        if: ${{ !env.ACT && always() }}
+        if: ${{ !env.ACT && github.event.event_name == 'pull_request' }}
         with:
           script: |
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'This is a comment from Actions\nApp status: ${{ steps.deployment_check.outputs.status }}\nURL: ${{ steps.deployment_check.outputs.url }}'
+              body: '${{ steps.deployment_check.outputs.status_message }}'
             })
