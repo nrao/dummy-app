@@ -48,12 +48,15 @@ jobs:
           then
             timestamp="$(date +'%H%M%S')"
           fi
+          echo "version=${scm_version}${timestamp}"
           echo "version=${scm_version}${timestamp}" >> "$GITHUB_OUTPUT"
 
       - name: Get image name
         id: imagename
         run: |
-          echo "image_name=${{ !env.ACT && 'ghcr.io' || 'registry.localhost:5432' }}/nrao/releng/dummy_app" >> "$GITHUB_OUTPUT"
+          image_name="${{ !env.ACT && 'ghcr.io' || 'registry.localhost:5432' }}/nrao/releng/dummy_app"
+          echo "image_name=${image_name}"
+          echo "image_name=${image_name}" >> "$GITHUB_OUTPUT"
     
       - name: Get ArgoCD app name
         id: argocd
@@ -67,6 +70,7 @@ jobs:
           then
             app_name="dummy-app-${{ !env.ACT && 'dev' || 'local' }}"
           fi
+          echo "app_name=${app_name}"
           echo "app_name=${app_name}" >> "$GITHUB_OUTPUT"
     
       - name: Dump GitHub context (useful for debugging)
@@ -202,21 +206,16 @@ jobs:
         run: |
           # Check that the application is healthy
           STATUS="$(argocd app get ${{ needs.prep_env.outputs.argocd_app_name }} -o json --grpc-web | jq -r '.status.health.status')"
-          echo "status=${STATUS}" >> "$GITHUB_OUTPUT"
           if [ "$STATUS" != "Healthy" ]; then
             echo "Application is not healthy: $STATUS"
             exit 1
           fi
+          echo "✅ Application is healthy!"
           ## Get External URL
           URL="$(argocd app get ${{ needs.prep_env.outputs.argocd_app_name }} -o json --grpc-web | jq -r '.status.summary.externalURLs[0]')"
           echo "Application URL: $URL"
-
-          read -r -d '' msg <<EOF
-          ### ✅ Application successfully deployed in ArgoCD
-          You can view the preview of this PR here: $URL
-          EOF
+          msg="### ✅ Application successfully deployed in ArgoCD\nYou can view the preview of this PR here: ${URL}"
           echo "status_message=${msg}" >> "$GITHUB_OUTPUT"
-
       
       - name: Post comment with status and URL
         uses: actions/github-script@v9
