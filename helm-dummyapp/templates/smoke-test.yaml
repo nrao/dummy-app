@@ -27,7 +27,7 @@ spec:
               # Wait for service to be ready
               echo "Waiting for service readiness..."
               for i in $(seq 1 30); do
-                if curl -sf http://{{ include "dummyapp.fullname" . }}/healthz > /dev/null 2>&1; then
+                if curl -sf http://{{ include "dummyapp.fullname" . }}{{ .Values.contextPath | trimSuffix "/" }}/healthz > /dev/null 2>&1; then
                   echo "Service is ready"
                   break
                 fi
@@ -37,7 +37,7 @@ spec:
 
               # Test health endpoint
               echo "Test 1: Health endpoint"
-              curl -sf http://{{ include "dummyapp.fullname" . }}/healthz || { echo "FAIL: Health check"; exit 1; }
+              curl -sf http://{{ include "dummyapp.fullname" . }}{{ .Values.contextPath | trimSuffix "/" }}/healthz || { echo "FAIL: Health check"; exit 1; }
               echo "PASS"
 
       restartPolicy: Never
