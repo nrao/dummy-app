@@ -11,7 +11,12 @@
       <li><strong>Version:</strong> {{ version }}</li>
       <li><strong>App baseUrl:</strong> {{ base_url }}</li>
       <li><strong>SAMPLE_VAR:</strong> {{ sample_var }}</li>
-      <li><strong>COLOR:</strong> {{ color }}</li>
+      <li>
+          <strong>COLOR:</strong> {{ color }}
+          {% if not color_valid %}
+            ⚠️ color is invalid! Using a default color.
+          {% endif %}
+      </li>
     </ul>
   </section>
 </body>

@@ -10,6 +10,7 @@ jobs:
       packages: write
     steps:
       - uses: dataaxiom/ghcr-cleanup-action@v1
+        if: ${{ !env.ACT }}
         with:
           owner: nrao
           package: releng/dummy_app
