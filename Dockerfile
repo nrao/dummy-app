@@ -29,6 +29,7 @@ WORKDIR /app
 COPY --from=builder /app /app
 COPY --from=builder /packages /packages
 COPY container/ ./
+COPY tests/deployment/test_deployment_integration.py ./
 
 ENV PYTHONPATH="/packages:/app"
 
