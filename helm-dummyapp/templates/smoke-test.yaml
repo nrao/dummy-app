@@ -1,0 +1,45 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: '{{ include "dummyapp.fullname" . }}-smoke'
+  labels:
+    {{- include "dummyapp.labels" . | nindent 4 }}
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    argocd.argoproj.io/sync-wave: "1"
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation,HookSucceeded
+spec:
+  template:
+    metadata:
+      labels:
+        app: {{ include "dummyapp.fullname" . }}
+        {{- include "dummyapp.labels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: smoke-test
+          image: curlimages/curl:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting smoke tests..."
+
+              # Wait for service to be ready
+              echo "Waiting for service readiness..."
+              for i in $(seq 1 30); do
+                if curl -sf http://{{ include "dummyapp.fullname" . }}{{ .Values.contextPath | trimSuffix "/" }}/healthz > /dev/null 2>&1; then
+                  echo "Service is ready"
+                  break
+                fi
+                echo "Attempt $i: service not ready, waiting..."
+                sleep 2
+              done
+
+              # Test health endpoint
+              echo "Test 1: Health endpoint"
+              curl -sf http://{{ include "dummyapp.fullname" . }}{{ .Values.contextPath | trimSuffix "/" }}/healthz || { echo "FAIL: Health check"; exit 1; }
+              echo "PASS"
+
+      restartPolicy: Never
+  backoffLimit: 1
+  activeDeadlineSeconds: 120
