@@ -68,6 +68,7 @@ jobs:
         uses: actions/checkout@v7
         with:
           repository: nrao/releng-aws-gitops
+          token: "${{ secrets.GH_REPO_PAT }}"
           path: ./gitops
 
       - name: Update dev environment image tag
@@ -77,7 +78,8 @@ jobs:
           echo "./scripts/setEnvTag.sh dummy-app aws-dev staging $imageTag"
           # chmod +x ./scripts/setEnvTag.sh
           # ./scripts/setEnvTag.sh dummy-app aws-dev staging "$imageTag"
-
-      # - name: Commit and push environment change
-      #   run: |
-      #     echo "git commit..."
+          # git config user.email "cd@nrao.edu"
+          # git config user.name "CD Bot"
+          # git add .
+          # git commit -m "chore(dev): Set dummy-app/aws-dev image tag to $imageTag"
+          # git push origin main
