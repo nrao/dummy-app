@@ -1,0 +1,80 @@
+name: Prepare Environment Variables
+on:
+  workflow_call:
+    outputs:
+      should_publish:
+        description: 'Publish container to a registry?'
+        value: ${{ jobs.prep_env.outputs.should_publish }}
+      image_name:
+        description: 'The image name'
+        value: ${{ jobs.prep_env.outputs.image_name }}
+      app_version:
+        description: 'The app version'
+        value: ${{ jobs.prep_env.outputs.app_version }}
+      argocd_app_name:
+        description: 'The name of the associated ArgoCD app'
+        value: ${{ jobs.prep_env.outputs.argocd_app_name }}
+
+env:
+  SHOULD_PUBLISH: ${{ (github.ref == 'refs/heads/main' || contains(github.event.pull_request.labels.*.name, 'preview')) }}
+
+jobs:
+  prep_env:
+    runs-on: ubuntu-latest
+    outputs:
+      should_publish: ${{ env.SHOULD_PUBLISH }}
+      image_name: ${{ steps.imagename.outputs.image_name }}
+      app_version: ${{ steps.setuptools.outputs.version }}
+      argocd_app_name: ${{ steps.argocd.outputs.app_name }}
+    steps:
+      ## https://github.com/nektos/act/issues/2666
+      - uses: actions/checkout@v7
+        if: ${{ env.ACT }} 
+
+      - uses: actions/checkout@v7
+        if: ${{ !env.ACT }}
+        with:
+          ref:  ${{ github.event.pull_request.head.sha || '' }}
+
+      - uses: ./.github/actions/setup-python
+
+      - run: pip install --root-user-action=ignore setuptools_scm
+
+      - name: Get app version
+        id: setuptools
+        run: |
+          scm_version="$(python -m setuptools_scm)"
+          timestamp=""
+          if [[ "$scm_version" =~ \+g[0-9a-f]+\.d ]]
+          then
+            timestamp="$(date +'%H%M%S')"
+          fi
+          echo "version=${scm_version}${timestamp}"
+          echo "version=${scm_version}${timestamp}" >> "$GITHUB_OUTPUT"
+
+      - name: Get image name
+        id: imagename
+        run: |
+          image_name="${{ !env.ACT && 'ghcr.io' || 'registry.localhost:5432' }}/nrao/releng/dummy_app"
+          echo "image_name=${image_name}"
+          echo "image_name=${image_name}" >> "$GITHUB_OUTPUT"
+    
+      - name: Get ArgoCD app name
+        id: argocd
+        run: |
+          app_name="dummy-app-UNKNOWN-${{ github.event_name  }}"
+          event_name="${{ github.event_name }}"
+          if [[ "$event_name" == "pull_request" ]]
+          then
+            app_name="dummyapp-pr-${{ github.event.pull_request.number }}"
+          elif [[ "$event_name" == "push" ]]
+          then
+            app_name="dummy-app-${{ !env.ACT && 'dev' || 'local' }}"
+          fi
+          echo "app_name=${app_name}"
+          echo "app_name=${app_name}" >> "$GITHUB_OUTPUT"
+    
+      - name: Dump GitHub context (useful for debugging)
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
