@@ -19,7 +19,7 @@ on:
 
 jobs:
   argo_check:
-    name: Prepare Environment Variables
+    name: Check ArgoCD
     runs-on: ubuntu-latest
     steps:
       - name: Install ArgoCD CLI
