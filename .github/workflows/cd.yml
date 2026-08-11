@@ -51,6 +51,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
+          push: true
           build-args: |
             VERSION=${{ needs.prep_env.outputs.app_version }}
           platforms: linux/amd64,linux/arm64
@@ -100,12 +101,12 @@ jobs:
           argocd login ${{ secrets.ARGOCD_SERVER }} \
             --username ${{ secrets.ARGOCD_USERNAME }} \
             --password "${{ secrets.ARGOCD_PASSWORD }}" \
-            --insecure
+            --insecure --grpc-web
 
       - name: Trigger sync
         run: |
           # Trigger a sync for the application
-          argocd app sync dummy-app-dev
+          argocd app sync dummy-app-dev --grpc-web
 
       - name: Wait for sync to complete
         run: |
@@ -113,7 +114,8 @@ jobs:
           argocd app wait dummy-app-dev \
             --sync \
             --health \
-            --timeout 300
+            --timeout 300 \
+            --grpc-web
 
       - name: Verify deployment health and build status message
         id: deployment_check
