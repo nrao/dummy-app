@@ -7,7 +7,6 @@ on:
 
 jobs:
   prep_env:
-    name: Prepare Environment Variables
     uses: ./.github/workflows/prep-env.yml
 
   docker_cd:
@@ -126,7 +125,7 @@ jobs:
         id: deployment_check
         run: |
           # Check that the application is healthy
-          STATUS="$(argocd app get dummy-app-dev-o json --grpc-web | jq -r '.status.health.status')"
+          STATUS="$(argocd app get dummy-app-dev -o json --grpc-web | jq -r '.status.health.status')"
           if [ "$STATUS" != "Healthy" ]; then
             echo "Application is not healthy: $STATUS"
             exit 1
