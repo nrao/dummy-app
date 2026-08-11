@@ -7,6 +7,7 @@ on:
 
 jobs:
   prep_env:
+    name: Prepare Environment Variables
     uses: ./.github/workflows/prep-env.yml
 
   docker_cd:
@@ -105,8 +106,12 @@ jobs:
 
       - name: Trigger sync
         run: |
-          # Trigger a sync for the application
-          argocd app sync dummy-app-dev --grpc-web
+          # Trigger a sync for the application - may fail if previous run failed
+          if ! argocd app sync dummy-app-dev --grpc-web
+          then
+            argocd app terminate-op dummy-app-dev --grpc-web
+            argocd app sync dummy-app-dev --grpc-web
+          fi
 
       - name: Wait for sync to complete
         run: |

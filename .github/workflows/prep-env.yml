@@ -20,6 +20,7 @@ env:
 
 jobs:
   prep_env:
+    name: Prepare Environment Variables
     runs-on: ubuntu-latest
     outputs:
       should_publish: ${{ env.SHOULD_PUBLISH }}
