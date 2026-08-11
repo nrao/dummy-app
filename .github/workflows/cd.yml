@@ -75,11 +75,10 @@ jobs:
         run: |
           cd gitops/
           imageTag="$(echo "${{ needs.docker_cd.outputs.image_tags }}" | grep 'sha-')"
-          echo "./scripts/setEnvTag.sh dummy-app aws-dev staging $imageTag"
-          # chmod +x ./scripts/setEnvTag.sh
-          # ./scripts/setEnvTag.sh dummy-app aws-dev staging "$imageTag"
-          # git config user.email "cd@nrao.edu"
-          # git config user.name "CD Bot"
-          # git add .
-          # git commit -m "chore(dev): Set dummy-app/aws-dev image tag to $imageTag"
-          # git push origin main
+          chmod +x ./scripts/setEnvTag.sh
+          ./scripts/setEnvTag.sh dummy-app aws-dev "$imageTag"
+          git config user.email "releng-cd@nrao.edu"
+          git config user.name "CD Bot"
+          git add .
+          git commit -m "chore(dev): Set dummy-app/aws-dev image tag to $imageTag"
+          git push origin main
