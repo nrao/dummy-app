@@ -4,6 +4,7 @@ import sys
 
 from dotenv import load_dotenv
 from flask import Flask
+from tests.unit.conftest import app
 
 log = logging.getLogger(__name__)
 
@@ -39,4 +40,6 @@ def init_app(app_config=None):
         from .resources.healthz import healthz
         app.register_blueprint(healthz)
 
+        from .resources.testreport import testreport
+        app.register_blueprint(testreport)
         return app

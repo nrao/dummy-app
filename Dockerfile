@@ -12,7 +12,7 @@ WORKDIR /app
 COPY pyproject.toml ./
 
 RUN pip install --root-user-action=ignore --no-cache-dir --upgrade pip==26.1 pip-tools==7.6.0 && \
-    pip-compile pyproject.toml --output-file requirements.txt && \
+    pip-compile pyproject.toml --extra all --output-file requirements.txt && \
     pip install --root-user-action=ignore --no-cache-dir -r requirements.txt --target /packages
 
 COPY src/ ./
