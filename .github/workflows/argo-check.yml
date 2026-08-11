@@ -41,8 +41,10 @@ jobs:
           # Trigger a sync for the application - may fail if previous run failed
           if ! argocd app sync ${{ inputs.app_name }} --grpc-web
           then
-            argocd app terminate-op ${{ inputs.app_name }} --grpc-web
-            argocd app sync ${{ inputs.app_name }} --grpc-web
+            STATUS="$(argocd app get ${{ inputs.app_name }} -o json --grpc-web | jq -r '.status.sync.status')"
+            echo "Could not manually sync, current status is: ${STATUS}"
+            # argocd app terminate-op ${{ inputs.app_name }} --grpc-web
+            # argocd app sync ${{ inputs.app_name }} --grpc-web
           fi
 
       - name: Wait for sync to complete
