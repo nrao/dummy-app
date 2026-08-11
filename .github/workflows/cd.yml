@@ -59,7 +59,7 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  gitops:
+  gitops_dev:
     name: Update dev GitOps environment
     runs-on: ubuntu-latest
     needs: [docker_cd]
@@ -81,4 +81,70 @@ jobs:
           git config user.name "CD Bot"
           git add .
           git commit -m "chore(dev): Set dummy-app/aws-dev image tag to $imageTag"
+          git push origin main
+
+  argocd_dev:
+    name: Verify ArgoCD deployment of dev
+    runs-on: ubuntu-latest
+    needs: [gitops_dev]
+    steps:
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+          argocd version --client
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.ARGOCD_SERVER }} \
+            --username ${{ secrets.ARGOCD_USERNAME }} \
+            --password "${{ secrets.ARGOCD_PASSWORD }}" \
+            --insecure
+
+      - name: Trigger sync
+        run: |
+          # Trigger a sync for the application
+          argocd app sync dummy-app-dev
+
+      - name: Wait for sync to complete
+        run: |
+          # Wait up to 5 minutes for the sync to finish
+          argocd app wait dummy-app-dev \
+            --sync \
+            --health \
+            --timeout 300
+
+      - name: Verify deployment health and build status message
+        id: deployment_check
+        run: |
+          # Check that the application is healthy
+          STATUS="$(argocd app get dummy-app-dev-o json --grpc-web | jq -r '.status.health.status')"
+          if [ "$STATUS" != "Healthy" ]; then
+            echo "Application is not healthy: $STATUS"
+            exit 1
+          fi
+          echo "✅ Application is healthy!"
+
+  gitops_qa:
+    name: Promote to QA
+    runs-on: ubuntu-latest
+    needs: [argocd_dev]
+    steps:
+      - name: Checkout GitOps repo
+        uses: actions/checkout@v7
+        with:
+          repository: nrao/releng-aws-gitops
+          token: "${{ secrets.GH_REPO_PAT }}"
+          path: ./gitops
+
+      - name: Promote dev imageTag to QA
+        run: |
+          cd gitops/
+          chmod +x ./scripts/promote.sh
+          ./scripts/promote.sh dummy-app aws-dev aws-qa
+          git config user.email "releng-cd@nrao.edu"
+          git config user.name "CD Bot"
+          git add .
+          git commit -m "chore(qa): Promote dummy-app/aws-dev image to aws-qa"
           git push origin main
