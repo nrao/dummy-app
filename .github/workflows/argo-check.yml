@@ -1,0 +1,66 @@
+name: Sync and verify ArgoCD application deployment
+on:
+  workflow_call:
+    inputs:
+      app_name:
+        description: 'The application name to verify'
+        type: string
+        required: true
+    secrets:
+      server:
+        description: ArgoCD server to connect to
+        required: true
+      username:
+        description: username to login with
+        required: true
+      password:
+        description: password to login with
+        required: true
+
+jobs:
+  argo_check:
+    name: Prepare Environment Variables
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install ArgoCD CLI
+        run: |
+          curl -sSL -o argocd https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+          chmod +x argocd
+          sudo mv argocd /usr/local/bin/
+          argocd version --client
+
+      - name: Login to ArgoCD
+        run: |
+          argocd login ${{ secrets.server }} \
+            --username ${{ secrets.username }} \
+            --password "${{ secrets.password }}" \
+            --insecure --grpc-web
+
+      - name: Trigger sync
+        run: |
+          # Trigger a sync for the application - may fail if previous run failed
+          if ! argocd app sync ${{ inputs.app_name }} --grpc-web
+          then
+            argocd app terminate-op ${{ inputs.app_name }} --grpc-web
+            argocd app sync ${{ inputs.app_name }} --grpc-web
+          fi
+
+      - name: Wait for sync to complete
+        run: |
+          # Wait up to 5 minutes for the sync to finish
+          argocd app wait ${{ inputs.app_name }} \
+            --sync \
+            --health \
+            --timeout 300 \
+            --grpc-web
+
+      - name: Verify deployment health and build status message
+        id: deployment_check
+        run: |
+          # Check that the application is healthy
+          STATUS="$(argocd app get ${{ inputs.app_name }} -o json --grpc-web | jq -r '.status.health.status')"
+          if [ "$STATUS" != "Healthy" ]; then
+            echo "Application is not healthy: $STATUS"
+            exit 1
+          fi
+          echo "✅ Application is healthy!"
