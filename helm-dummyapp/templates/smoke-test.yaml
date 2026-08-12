@@ -29,7 +29,7 @@ spec:
           imagePullPolicy: {{ .Values.test.image.pullPolicy }}
           env:
             - name: TEST_BASE_URL
-              value: "http://{{ include 'dummyapp.fullname' . }}{{ .Values.contextPath | trimSuffix '/'}}"
+              value: 'http://{{ include "dummyapp.fullname" . }}{{ .Values.contextPath | trimSuffix "/"}}'
           command:
             - smoke
 
