@@ -1,0 +1,7 @@
+tests:
+  enabled: true
+  ## Testing image
+  image:
+    repository: "nrao.repo.sonatype.app/cicdpilot/releng/dummy_app/tests"
+    pullPolicy: IfNotPresent
+    tag: pr-33

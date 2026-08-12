@@ -22,7 +22,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ needs.prep_env.outputs.image_name }}
+          images: ${{ vars.APP_IMAGE_NAME }}
           tags: |
             type=ref,event=tag
             type=semver,pattern={{version}}
@@ -36,6 +36,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Login to Nexus
+        uses: docker/login-action@v4
+        with:
+          registry: nrao.repo.sonatype.app
+          username: ${{ secrets.NEXUS_USER }}
+          password: ${{ secrets.NEXUS_PASSWORD }}
       
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
