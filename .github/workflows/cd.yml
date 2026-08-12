@@ -9,28 +9,37 @@ jobs:
   prep_env:
     uses: ./.github/workflows/prep-env.yml
 
-  docker_cd:
-    name: Build docker container
+  docker_cd_app:
+    needs: [prep_env]
+    uses: ./.github/workflows/build-docker-app.yml
+    with:
+      image_name: ${{ vars.APP_IMAGE_NAME }}
+      should_publish: true
+      app_version: ${{ needs.prep_env.outputs.app_version }}
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NEXUS_USER: ${{ secrets.NEXUS_USER }}
+      NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
+
+  docker_cd_test:
     runs-on: ubuntu-latest
     needs: [prep_env]
-    outputs:
-      image_tags: ${{ steps.meta.outputs.tag-names }}
     steps:
       - uses: actions/checkout@v7
 
-      - name: Docker metadata
+      - name: Docker tester image metadata
         id: meta
         uses: docker/metadata-action@v6
         with:
-          images: ${{ vars.APP_IMAGE_NAME }}
+          images: ${{ vars.TEST_IMAGE_NAME }}
           tags: |
             type=ref,event=tag
+            type=ref,event=pr
             type=semver,pattern={{version}}
             type=sha
-            type=edge
 
       - name: Login to GitHub container registry
-        if: ${{ !env.ACT }}
+        if: ${{ needs.prep_env.outputs.should_publish == 'true' && !env.ACT }}
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
@@ -38,6 +47,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Login to Nexus
+        if: ${{ needs.prep_env.outputs.should_publish == 'true' }}
         uses: docker/login-action@v4
         with:
           registry: nrao.repo.sonatype.app
@@ -55,13 +65,12 @@ jobs:
             [registry."registry.localhost:5432"]
               http = true
 
-      - name: Build and push
+      - name: Build tester image
         uses: docker/build-push-action@v7
         with:
           context: .
+          file: tester.dockerfile
           push: true
-          build-args: |
-            VERSION=${{ needs.prep_env.outputs.app_version }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
@@ -72,7 +81,7 @@ jobs:
     name: Update dev GitOps environment
     if: ${{ !github.event.act }}
     runs-on: ubuntu-latest
-    needs: [docker_cd]
+    needs: [docker_cd_app, docker_cd_test]
     steps:
       - name: Checkout GitOps repo
         uses: actions/checkout@v7
