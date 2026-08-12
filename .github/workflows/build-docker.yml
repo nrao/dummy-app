@@ -18,7 +18,7 @@ jobs:
       should_publish: ${{ needs.prep_env.outputs.should_publish == 'true' }}
       app_version: ${{ needs.prep_env.outputs.app_version }}
     secrets:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NEXUS_USER: ${{ secrets.NEXUS_USER }}
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
