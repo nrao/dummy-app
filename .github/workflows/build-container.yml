@@ -1,4 +1,4 @@
-name: Build App docker container
+name: Build docker container
 on:
   workflow_call:
     inputs:
@@ -14,8 +14,12 @@ on:
         description: 'The built app version'
         type: string
         required: true
+      dockerfile:
+        description: 'The dockerfile to build'
+        type: string
+        default: Dockerfile
     secrets:
-      GH_TOKEN:
+      GHCR_TOKEN:
         description: GITHUB_TOKEN
         required: true
       NEXUS_USER:
@@ -48,7 +52,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_TOKEN }}
+          password: ${{ secrets.GHCR_TOKEN }}
       
       - name: Login to Nexus
         if: ${{ inputs.should_publish == 'true' }}
@@ -73,11 +77,12 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: .
+          file: ${{ inputs.dockerfile }}
           build-args: |
             VERSION=${{ inputs.app_version }}
           push: ${{ inputs.should_publish == 'true' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: "type=registry,ref=ghcr.io/nrap/releng/dummy_app:buildcache-${{ inputs.dockerfile }}"
+          cache-to: "type=registry,ref=ghcr.io/nrap/releng/dummy_app:buildcache-${{ inputs.dockerfile }},mode=max"
