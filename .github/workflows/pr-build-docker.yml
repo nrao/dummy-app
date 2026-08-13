@@ -14,7 +14,7 @@ jobs:
     needs: [prep_env]
     uses: ./.github/workflows/build-container.yml
     with:
-      image_name: ${{ needs.prep_env.outputs.image_name }}
+      image_name: ${{ vars.APP_IMAGE_NAME }}
       should_publish: ${{ needs.prep_env.outputs.should_publish == 'true' }}
       app_version: ${{ needs.prep_env.outputs.app_version }}
     secrets:
@@ -26,7 +26,7 @@ jobs:
     needs: [prep_env]
     uses: ./.github/workflows/build-container.yml
     with:
-      image_name: ${{ needs.prep_env.outputs.image_name }}
+      image_name: ${{ vars.TEST_IMAGE_NAME }}
       should_publish: ${{ needs.prep_env.outputs.should_publish == 'true' }}
       app_version: ${{ needs.prep_env.outputs.app_version }}
       dockerfile: tester.dockerfile

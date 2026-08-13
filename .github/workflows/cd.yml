@@ -25,7 +25,7 @@ jobs:
     needs: [prep_env]
     uses: ./.github/workflows/build-container.yml
     with:
-      image_name: ${{ vars.APP_IMAGE_NAME }}
+      image_name: ${{ vars.TEST_IMAGE_NAME }}
       should_publish: true
       app_version: ${{ needs.prep_env.outputs.app_version }}
       dockerfile: tester.dockerfile
