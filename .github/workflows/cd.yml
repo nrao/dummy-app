@@ -10,6 +10,7 @@ jobs:
     uses: ./.github/workflows/prep-env.yml
 
   docker_cd_app:
+    name : 'Build App container'
     needs: [prep_env]
     uses: ./.github/workflows/build-container.yml
     with:
@@ -22,6 +23,7 @@ jobs:
       NEXUS_PASSWORD: ${{ secrets.NEXUS_PASSWORD }}
 
   docker_cd_test:
+    name : 'Build Testing container'
     needs: [prep_env]
     uses: ./.github/workflows/build-container.yml
     with:
