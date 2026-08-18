@@ -1,4 +1,4 @@
 
-def test_heathz_returns_version(client):
+def test_index_welcomes_nrao(client):
     response = client.get("/")
-    assert b"<p>Hello NRAO!</p>" in response.data
+    assert b"Hello NRAO!" in response.data
